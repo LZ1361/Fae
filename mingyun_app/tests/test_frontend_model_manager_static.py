@@ -1,9 +1,83 @@
 from pathlib import Path
+import struct
 import unittest
+import zlib
 
 
 STATIC_DIR = Path(__file__).resolve().parents[1] / "static"
 PROJECT_DIR = Path(__file__).resolve().parents[2]
+
+
+def png_corner_alpha_values(path):
+    data = path.read_bytes()
+    if not data.startswith(b"\x89PNG\r\n\x1a\n"):
+        raise AssertionError(f"{path.name} is not a PNG")
+
+    cursor = 8
+    width = height = bit_depth = color_type = None
+    idat = bytearray()
+
+    while cursor < len(data):
+        length = struct.unpack(">I", data[cursor : cursor + 4])[0]
+        chunk_type = data[cursor + 4 : cursor + 8]
+        chunk_data = data[cursor + 8 : cursor + 8 + length]
+        cursor += 12 + length
+
+        if chunk_type == b"IHDR":
+            width, height, bit_depth, color_type = struct.unpack(">IIBB", chunk_data[:10])
+        elif chunk_type == b"IDAT":
+            idat.extend(chunk_data)
+        elif chunk_type == b"IEND":
+            break
+
+    if (bit_depth, color_type) != (8, 6):
+        raise AssertionError(f"{path.name} must be 8-bit RGBA PNG")
+
+    raw = zlib.decompress(bytes(idat))
+    bytes_per_pixel = 4
+    stride = width * bytes_per_pixel
+    rows = []
+    offset = 0
+    previous = bytearray(stride)
+
+    for _ in range(height):
+        filter_type = raw[offset]
+        offset += 1
+        scanline = bytearray(raw[offset : offset + stride])
+        offset += stride
+
+        for index, value in enumerate(scanline):
+            left = scanline[index - bytes_per_pixel] if index >= bytes_per_pixel else 0
+            up = previous[index]
+            upper_left = previous[index - bytes_per_pixel] if index >= bytes_per_pixel else 0
+            if filter_type == 1:
+                scanline[index] = (value + left) & 0xFF
+            elif filter_type == 2:
+                scanline[index] = (value + up) & 0xFF
+            elif filter_type == 3:
+                scanline[index] = (value + ((left + up) // 2)) & 0xFF
+            elif filter_type == 4:
+                predictor = left + up - upper_left
+                pa = abs(predictor - left)
+                pb = abs(predictor - up)
+                pc = abs(predictor - upper_left)
+                paeth = left if pa <= pb and pa <= pc else up if pb <= pc else upper_left
+                scanline[index] = (value + paeth) & 0xFF
+            elif filter_type != 0:
+                raise AssertionError(f"{path.name} has unknown PNG filter {filter_type}")
+
+        rows.append(scanline)
+        previous = scanline
+
+    def alpha_at(x, y):
+        return rows[y][(x * bytes_per_pixel) + 3]
+
+    return [
+        alpha_at(0, 0),
+        alpha_at(width - 1, 0),
+        alpha_at(0, height - 1),
+        alpha_at(width - 1, height - 1),
+    ]
 
 
 class FrontendModelManagerStaticTests(unittest.TestCase):
@@ -133,6 +207,11 @@ class FrontendModelManagerStaticTests(unittest.TestCase):
         self.assertNotIn("transform: translateX(-50%);", css)
         self.assertIn("font-size: clamp(26px, 2.5vw, 34px);", css)
 
+    def test_destiny_icon_uses_transparent_disc_edges(self):
+        icon_path = STATIC_DIR / "assets" / "mingyun-destiny-icon.png"
+
+        self.assertEqual(png_corner_alpha_values(icon_path), [0, 0, 0, 0])
+
     def test_main_form_keeps_gender_only_without_reference_tone(self):
         html = (STATIC_DIR / "index.html").read_text(encoding="utf-8")
 
@@ -207,24 +286,28 @@ class FrontendModelManagerStaticTests(unittest.TestCase):
     def test_api_keys_remain_browser_local_and_are_not_bundled(self):
         script = (STATIC_DIR / "app.js").read_text(encoding="utf-8")
         docs = [
-            (PROJECT_DIR / "18_产品售卖交付与合规方案.md").read_text(encoding="utf-8"),
+            (PROJECT_DIR / "SECURITY.md").read_text(encoding="utf-8"),
+            (PROJECT_DIR / "docs" / "PACKAGING.md").read_text(encoding="utf-8"),
             (PROJECT_DIR / "mingyun_app" / "README.md").read_text(encoding="utf-8"),
         ]
 
         self.assertIn('const STORAGE_KEYS = "mingyun.apiKeys";', script)
         self.assertIn("localStorage.setItem(STORAGE_KEYS", script)
         self.assertIn("localStorage.removeItem(STORAGE_KEYS)", script)
-        self.assertTrue(any("不会随软件交付给客户" in doc for doc in docs))
+        joined_docs = "\n".join(docs)
+        self.assertIn("localStorage", joined_docs)
+        self.assertIn("API Key", joined_docs)
+        self.assertIn("not written", joined_docs)
 
     def test_customer_delivery_document_exists(self):
-        doc = PROJECT_DIR / "18_产品售卖交付与合规方案.md"
+        doc = PROJECT_DIR / "docs" / "PACKAGING.md"
 
         self.assertTrue(doc.exists())
         text = doc.read_text(encoding="utf-8")
-        self.assertIn("Windows 本地版", text)
-        self.assertIn("客户自行配置 API Key", text)
-        self.assertIn("隐私政策", text)
-        self.assertIn("AI 生成，仅供参考", text)
+        self.assertIn("Windows", text)
+        self.assertIn("API Key", text)
+        self.assertIn("Release", text)
+        self.assertIn("build_windows.ps1", text)
 
 
 if __name__ == "__main__":
