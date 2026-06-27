@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>命运</title>
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="apple-touch-icon" href="/assets/mingyun-destiny-icon.png" />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="app-backdrop" aria-hidden="true">
+      <div class="rotating-astrolabe"></div>
+    </div>
+    <div class="toast-stack" id="toastStack" aria-live="polite" aria-atomic="true"></div>
+    <main class="product-shell">
+      <header class="topbar">
+        <a class="brand-mark brand-lockup" href="/">
+          <span class="brand-symbol">
+            <img src="/assets/mingyun-destiny-icon.png" alt="" />
+          </span>
+          <span class="brand-copy">
+            <strong class="brand-title">命运</strong>
+          </span>
+        </a>
+        <nav class="top-actions">
+          <a class="nav-link active" href="/">测试</a>
+          <a class="nav-link" href="/models.html">模型管理</a>
+          <span class="status-pill" id="modelStatus">未测试连接</span>
+        </nav>
+      </header>
+
+      <section class="hero-band">
+        <div>
+          <p class="hero-creator">创作者：不做梵高</p>
+          <p class="eyebrow">真实推断，不迎合情绪</p>
+        </div>
+        <p class="hero-copy">
+          先计算出生信息、五行权重、星座与心理自评，再让大模型解释这些证据。每条结论都需要依据、置信度和边界。
+        </p>
+      </section>
+
+      <section class="app-grid">
+        <form id="readingForm" class="work-surface input-grid">
+          <fieldset class="form-section">
+            <legend>出生信息</legend>
+            <label>
+              历法
+              <select name="calendar_type">
+                <option value="solar" selected>公历</option>
+                <option value="lunar">农历</option>
+              </select>
+            </label>
+            <label>
+              出生日期
+              <input name="birth_date" type="date" value="1998-05-06" required />
+            </label>
+            <label class="checkbox-line">
+              <input name="lunar_is_leap" type="checkbox" />
+              农历闰月
+            </label>
+            <label>
+              出生时间
+              <input name="birth_time" type="time" value="14:30" />
+            </label>
+            <label>
+              时间准确度
+              <select name="birth_time_accuracy">
+                <option value="accurate">准确</option>
+                <option value="approximate">约略</option>
+                <option value="unknown">不确定</option>
+              </select>
+            </label>
+            <label>
+              出生城市
+              <input name="birth_city" value="上海" required />
+            </label>
+            <label>
+              性别
+              <select name="gender">
+                <option value="unspecified" selected>不指定</option>
+                <option value="female">女</option>
+                <option value="male">男</option>
+              </select>
+            </label>
+          </fieldset>
+
+          <fieldset class="form-section">
+            <legend>推断设置</legend>
+            <label>
+              当前模型
+              <select name="model_id" id="modelSelect"></select>
+            </label>
+            <div class="inline-actions">
+              <button type="button" class="secondary" id="testModelBtn">测试模型</button>
+              <a class="button-link" href="/models.html">配置模型</a>
+            </div>
+            <label>
+              风格
+              <select name="style">
+                <option value="rational">理性</option>
+                <option value="balanced" selected>平衡</option>
+                <option value="mystical">神秘</option>
+              </select>
+            </label>
+            <label>
+              <span class="range-title">
+                玄学浓度
+                <output data-range-output="mysticism_level">50 平衡表达</output>
+              </span>
+              <input name="mysticism_level" type="range" min="0" max="90" value="50" />
+              <span class="scale-hint"><span>理性解释</span><span>平衡表达</span><span>神秘叙事</span></span>
+            </label>
+          </fieldset>
+
+          <fieldset class="form-section sliders">
+            <legend>心理自评</legend>
+            <label>
+              <span class="range-title">
+                社交能量
+                <output data-range-output="energy_social">2 独处恢复</output>
+              </span>
+              <input name="energy_social" type="range" min="1" max="5" value="2" />
+              <span class="scale-hint"><span>独处恢复</span><span>均衡</span><span>外向充电</span></span>
+            </label>
+            <label>
+              <span class="range-title">
+                计划程度
+                <output data-range-output="planning">4 强计划</output>
+              </span>
+              <input name="planning" type="range" min="1" max="5" value="4" />
+              <span class="scale-hint"><span>即兴</span><span>适中</span><span>强计划</span></span>
+            </label>
+            <label>
+              <span class="range-title">
+                情绪关注
+                <output data-range-output="emotion_focus">3 适中</output>
+              </span>
+              <input name="emotion_focus" type="range" min="1" max="5" value="3" />
+              <span class="scale-hint"><span>低敏感</span><span>适中</span><span>高共情</span></span>
+            </label>
+            <label>
+              <span class="range-title">
+                新鲜感偏好
+                <output data-range-output="novelty">4 探索偏好</output>
+              </span>
+              <input name="novelty" type="range" min="1" max="5" value="4" />
+              <span class="scale-hint"><span>稳定偏好</span><span>适中</span><span>探索偏好</span></span>
+            </label>
+          </fieldset>
+
+          <div class="submit-row">
+            <button type="submit">生成报告</button>
+          </div>
+        </form>
+
+        <section class="report-stack">
+          <section class="work-surface result-main">
+            <div class="section-title">
+              <span>报告</span>
+              <small id="usageText">等待生成</small>
+            </div>
+            <div id="readingOutput" class="empty-state">选择模型后生成报告。模型只解释已计算依据。</div>
+          </section>
+
+          <section class="evidence-grid">
+            <div class="work-surface evidence-panel">
+              <div class="section-title">
+                <span>五行权重</span>
+                <small>证据图</small>
+              </div>
+              <canvas id="elementCanvas" width="420" height="210"></canvas>
+            </div>
+            <div class="work-surface evidence-panel">
+              <div class="section-title">
+                <span>依据</span>
+                <small>可复核</small>
+              </div>
+              <div id="evidenceList" class="evidence-list"></div>
+            </div>
+          </section>
+
+          <section class="work-surface limits-panel">
+            <div class="section-title">
+              <span>边界</span>
+              <small>反胡说机制</small>
+            </div>
+            <div id="limitsList" class="limits-list"></div>
+          </section>
+        </section>
+      </section>
+    </main>
+    <script src="/app.js"></script>
+  </body>
+</html>

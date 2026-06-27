@@ -1,0 +1,159 @@
+{
+  "models": [
+    {
+      "id": "mock-local",
+      "display_name": "本地模拟模型",
+      "provider": "mock",
+      "api_format": "local",
+      "base_url": "",
+      "model_id": "mock-local",
+      "api_key_ref": "",
+      "enabled": true,
+      "capabilities": {
+        "text": true,
+        "json_output": true,
+        "tool_calls": false,
+        "streaming": false,
+        "reasoning_mode": false
+      },
+      "pricing": {
+        "input_per_million": 0,
+        "output_per_million": 0
+      },
+      "default_params": {
+        "temperature": 0.2,
+        "max_tokens": 1200
+      }
+    },
+    {
+      "id": "deepseek-v4-pro",
+      "display_name": "DeepSeek V4 Pro",
+      "provider": "deepseek",
+      "api_format": "openai_compatible",
+      "base_url": "https://api.deepseek.com",
+      "model_id": "deepseek-v4-pro",
+      "api_key_ref": "DEEPSEEK_API_KEY",
+      "enabled": true,
+      "capabilities": {
+        "text": true,
+        "json_output": true,
+        "tool_calls": true,
+        "streaming": true,
+        "reasoning_mode": true
+      },
+      "pricing": {
+        "input_per_million": 0.435,
+        "cached_input_per_million": 0.003625,
+        "output_per_million": 0.87
+      },
+      "default_params": {
+        "temperature": 0.35,
+        "max_tokens": 6000
+      },
+      "param_overrides": {
+        "thinking_type": "disabled"
+      }
+    },
+    {
+      "id": "deepseek-v4-flash",
+      "display_name": "DeepSeek V4 Flash",
+      "provider": "deepseek",
+      "api_format": "openai_compatible",
+      "base_url": "https://api.deepseek.com",
+      "model_id": "deepseek-v4-flash",
+      "api_key_ref": "DEEPSEEK_API_KEY",
+      "enabled": true,
+      "capabilities": {
+        "text": true,
+        "json_output": true,
+        "tool_calls": true,
+        "streaming": true,
+        "reasoning_mode": true
+      },
+      "pricing": {
+        "input_per_million": 0.07,
+        "cached_input_per_million": 0.0035,
+        "output_per_million": 0.28
+      },
+      "default_params": {
+        "temperature": 0.35,
+        "max_tokens": 6000
+      },
+      "param_overrides": {
+        "thinking_type": "disabled"
+      }
+    },
+    {
+      "id": "openai-gpt-5-5",
+      "display_name": "OpenAI GPT-5.5",
+      "provider": "openai",
+      "api_format": "openai_responses",
+      "base_url": "https://api.openai.com/v1",
+      "model_id": "gpt-5.5",
+      "api_key_ref": "OPENAI_API_KEY",
+      "enabled": true,
+      "capabilities": {
+        "text": true,
+        "json_output": true,
+        "tool_calls": true,
+        "streaming": true,
+        "reasoning_mode": true
+      },
+      "pricing": {
+        "input_per_million": 1.25,
+        "output_per_million": 10
+      },
+      "default_params": {
+        "max_tokens": 6000
+      }
+    },
+    {
+      "id": "openai-gpt-5-4-mini",
+      "display_name": "OpenAI GPT-5.4 Mini",
+      "provider": "openai",
+      "api_format": "openai_responses",
+      "base_url": "https://api.openai.com/v1",
+      "model_id": "gpt-5.4-mini",
+      "api_key_ref": "OPENAI_API_KEY",
+      "enabled": true,
+      "capabilities": {
+        "text": true,
+        "json_output": true,
+        "tool_calls": true,
+        "streaming": true,
+        "reasoning_mode": true
+      },
+      "pricing": {
+        "input_per_million": 0.75,
+        "output_per_million": 4.5
+      },
+      "default_params": {
+        "max_tokens": 6000
+      }
+    },
+    {
+      "id": "anthropic-claude-opus-4-8",
+      "display_name": "Claude Opus 4.8",
+      "provider": "anthropic",
+      "api_format": "anthropic_messages",
+      "base_url": "https://api.anthropic.com",
+      "model_id": "claude-opus-4-8",
+      "api_key_ref": "ANTHROPIC_API_KEY",
+      "enabled": true,
+      "capabilities": {
+        "text": true,
+        "json_output": true,
+        "tool_calls": true,
+        "streaming": true,
+        "reasoning_mode": true
+      },
+      "pricing": {
+        "input_per_million": 15,
+        "output_per_million": 75
+      },
+      "default_params": {
+        "max_tokens": 6000
+      }
+    }
+  ]
+}

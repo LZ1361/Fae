@@ -1,0 +1,21 @@
+__pycache__/
+*.pyc
+.venv/
+.venv-build/
+build/
+dist/
+*.spec
+.env
+.env.*
+!.env.example
+!mingyun_app/.env.example
+server.out.log
+server.err.log
+verification/
+release-artifacts/
+*.rar
+*.zip
+
+# Local reference project used during design/implementation; do not publish it
+# as part of the MingYun open-source app.
+prompt-optimizer-develop/

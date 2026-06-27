@@ -1,0 +1,2 @@
+"""Mingyun local MVP package."""
+

@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>模型管理 - 命运</title>
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="apple-touch-icon" href="/assets/mingyun-destiny-icon.png" />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="app-backdrop" aria-hidden="true">
+      <div class="rotating-astrolabe"></div>
+    </div>
+    <div class="toast-stack" id="toastStack" aria-live="polite" aria-atomic="true"></div>
+    <main class="product-shell models-page">
+      <header class="topbar">
+        <a class="brand-mark brand-lockup" href="/">
+          <span class="brand-symbol">
+            <img src="/assets/mingyun-destiny-icon.png" alt="" />
+          </span>
+          <span class="brand-copy">
+            <strong class="brand-title">命运</strong>
+          </span>
+        </a>
+        <nav class="top-actions">
+          <a class="nav-link" href="/">测试</a>
+          <a class="nav-link active" href="/models.html">模型管理</a>
+          <span class="status-pill" id="modelStatus">未测试连接</span>
+        </nav>
+      </header>
+
+      <section class="hero-band compact-hero">
+        <div>
+          <p class="hero-creator">创作者：不做梵高</p>
+          <p class="eyebrow">官方接口配置</p>
+          <h1>模型管理</h1>
+        </div>
+        <p class="hero-copy">
+          用户自行接入模型。内置预设只提供官方 Base URL、Endpoint 与默认模型名，API Key 不写入项目文件。
+        </p>
+      </section>
+
+      <section class="manager-layout">
+        <aside class="work-surface model-list-pane">
+          <div class="section-title">
+            <span>模型列表</span>
+            <small>内置 / 本地</small>
+          </div>
+          <label>
+            当前编辑模型
+            <select id="modelSelect"></select>
+          </label>
+          <div id="modelList" class="model-list"></div>
+        </aside>
+
+        <section class="work-surface model-editor">
+          <div class="section-title">
+            <span>连接配置</span>
+            <small>Provider / Model / Key</small>
+          </div>
+          <form id="modelConfigForm" class="model-config-grid">
+            <label>
+              显示名称
+              <input name="display_name" id="modelDisplayName" />
+            </label>
+            <label>
+              供应商
+              <select name="provider" id="modelProvider">
+                <option value="mock">本地模拟</option>
+                <option value="deepseek">DeepSeek</option>
+                <option value="openai">OpenAI</option>
+                <option value="anthropic">Anthropic</option>
+                <option value="openai_compatible">OpenAI 兼容</option>
+                <option value="custom">自定义</option>
+              </select>
+            </label>
+            <label>
+              接口格式
+              <select name="api_format" id="modelApiFormat">
+                <option value="local">local</option>
+                <option value="openai_responses">openai_responses</option>
+                <option value="openai_compatible">openai_compatible</option>
+                <option value="openai_chat">openai_chat</option>
+                <option value="anthropic_messages">anthropic_messages</option>
+              </select>
+            </label>
+            <label>
+              接口 URL / Base URL
+              <input name="base_url" id="modelBaseUrl" placeholder="DeepSeek: https://api.deepseek.com" />
+            </label>
+            <label>
+              真实 Model ID
+              <input name="real_model_id" id="modelRealId" placeholder="deepseek-v4-pro" />
+            </label>
+            <label>
+              API Key
+              <input name="api_key" id="modelApiKey" type="password" autocomplete="off" placeholder="仅保存在当前浏览器" />
+            </label>
+            <label>
+              Temperature
+              <input name="temperature" id="modelTemperature" type="number" min="0" max="2" step="0.05" value="0.35" />
+            </label>
+            <label>
+              Max tokens
+              <input name="max_tokens" id="modelMaxTokens" type="number" min="6000" max="16000" step="100" value="6000" />
+            </label>
+            <label class="wide-field">
+              高级请求参数 JSON
+              <textarea
+                name="param_overrides"
+                id="modelParamOverrides"
+                rows="5"
+                spellcheck="false"
+                placeholder='{"top_p":0.9,"reasoning_effort":"high"}'
+              ></textarea>
+            </label>
+          </form>
+
+          <div class="model-actions">
+            <button type="button" class="secondary" id="applyProviderPresetBtn">套用官方预设</button>
+            <button type="button" class="secondary" id="testModelBtn">测试连接</button>
+            <button type="button" id="saveLocalModelBtn">保存配置/API</button>
+            <button type="button" class="secondary danger" id="resetLocalModelsBtn">清空本地模型</button>
+          </div>
+
+          <div class="source-note">
+            <strong>配置依据：</strong>
+            OpenAI 使用 Responses API；DeepSeek 使用 OpenAI-compatible Chat Completions；Anthropic 使用 Messages API。
+            正式售卖前建议把 API Key 改为服务端加密存储。
+          </div>
+        </section>
+      </section>
+    </main>
+    <script src="/app.js"></script>
+  </body>
+</html>
